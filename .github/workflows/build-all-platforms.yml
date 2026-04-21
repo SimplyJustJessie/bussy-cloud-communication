@@ -41,7 +41,9 @@ jobs:
 
       - name: Build (Windows)
         if: matrix.os == 'windows-latest'
-        run: PLATFORM=windows pnpm make
+        run: pnpm make
+        env:
+          PLATFORM: windows
 
       - name: Build (macOS)
         if: matrix.os == 'macos-latest'
