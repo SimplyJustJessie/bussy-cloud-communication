@@ -1,3 +1,6 @@
+A clone of the original for personal use. Keeping a separate repo as I want the version to be static.
+
+
 <div align="center">
 <h1>
   Stoat for Desktop
