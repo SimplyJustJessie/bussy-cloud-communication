@@ -55,3 +55,35 @@ jobs:
           name: stoat-desktop-${{ matrix.os }}
           path: out/make/**/*
           retention-days: 30
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: artifacts/**/*
+          artifactContentType: application/octet-stream
+          tag: build-${{ github.run_number }}
+          name: Build ${{ github.run_number }}
+          body: |
+            Automated build from commit ${{ github.sha }}
+            
+            Download the appropriate installer for your OS:
+            - **Windows**: `.exe` installer or `.zip`
+            - **macOS**: `.dmg` or `.zip`
+            - **Linux**: `.deb` or `.zip`
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
