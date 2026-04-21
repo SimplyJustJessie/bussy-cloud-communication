@@ -41,11 +41,11 @@ jobs:
 
       - name: Build (Windows)
         if: matrix.os == 'windows-latest'
-        run: pnpm make
+        run: PLATFORM=windows pnpm make
 
       - name: Build (macOS)
         if: matrix.os == 'macos-latest'
-        run: pnpm make
+        run: PLATFORM=macos pnpm make
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
