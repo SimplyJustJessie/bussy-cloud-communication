@@ -1,0 +1,55 @@
+name: Build for All Platforms
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build App
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout assets
+        run: git -c submodule."assets".update=checkout submodule update --init assets
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: PLATFORM=linux pnpm make
+
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: pnpm make
+
+      - name: Build (macOS)
+        if: matrix.os == 'macos-latest'
+        run: pnpm make
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: stoat-desktop-${{ matrix.os }}
+          path: out/make/**/*
+          retention-days: 30
