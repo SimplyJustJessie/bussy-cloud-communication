@@ -61,6 +61,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -72,11 +74,10 @@ jobs:
           path: artifacts
 
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: softprops/action-gh-release@v1
         with:
-          artifacts: artifacts/**/*
-          artifactContentType: application/octet-stream
-          tag: build-${{ github.run_number }}
+          files: artifacts/**/*
+          tag_name: build-${{ github.run_number }}
           name: Build ${{ github.run_number }}
           body: |
             Automated build from commit ${{ github.sha }}
@@ -85,5 +86,3 @@ jobs:
             - **Windows**: `.exe` installer or `.zip`
             - **macOS**: `.dmg` or `.zip`
             - **Linux**: `.deb` or `.zip`
-          allowUpdates: true
-          token: ${{ secrets.GITHUB_TOKEN }}
