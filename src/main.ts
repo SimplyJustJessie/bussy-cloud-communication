@@ -1,6 +1,6 @@
 import { IUpdateInfo, updateElectronApp } from "update-electron-app";
 
-import { BrowserWindow, Notification, app, shell } from "electron";
+import { BrowserWindow, Notification, app, desktopCapturer, shell } from "electron";
 import started from "electron-squirrel-startup";
 
 import { autoLaunch } from "./native/autoLaunch";
@@ -42,6 +42,27 @@ if (acquiredLock) {
   app.on("ready", () => {
     // create window and application contexts
     createMainWindow();
+
+    // Set up display media request handler for screensharing
+    if (mainWindow) {
+      mainWindow.webContents.session.setDisplayMediaRequestHandler(
+        async (request, callback) => {
+          try {
+            const sources = await desktopCapturer.getSources({
+              types: ["screen", "window"],
+            });
+
+            callback({
+              video: sources[0],
+            });
+          } catch (error) {
+            console.error("Failed to get desktop capture sources:", error);
+            callback({});
+          }
+        },
+        { preloadOnly: false },
+      );
+    }
 
     // enable auto start on Windows and MacOS
     if (config.firstLaunch) {

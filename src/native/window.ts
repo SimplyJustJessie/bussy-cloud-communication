@@ -86,6 +86,22 @@ export function createMainWindow() {
   // load the entrypoint
   mainWindow.loadURL(BUILD_URL.toString());
 
+  // Send initial configuration to renderer
+  mainWindow.webContents.on("did-finish-load", () => {
+    if (mainWindow) {
+      mainWindow.webContents.send("config", {
+        firstLaunch: config.firstLaunch,
+        customFrame: config.customFrame,
+        minimiseToTray: config.minimiseToTray,
+        startMinimisedToTray: config.startMinimisedToTray,
+        spellchecker: config.spellchecker,
+        hardwareAcceleration: config.hardwareAcceleration,
+        discordRpc: config.discordRpc,
+        windowState: config.windowState,
+      });
+    }
+  });
+
   // minimise window to tray
   mainWindow.on("close", (event) => {
     if (!shouldQuit && config.minimiseToTray) {
